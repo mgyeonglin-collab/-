@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrashTrade 🌿 — 친환경 교환 플랫폼</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap" rel="stylesheet">
+<style>
+:root {
+  --main-green: #6BA368;
+  --light-green: #A1C181;
+  --ivory: #F7F4EA;
+  --accent-yellow: #F9CC66;
+  --text-dark: #2B2B2B;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Gowun Batang', serif;
+  background: var(--ivory);
+  color: var(--text-dark);
+  padding-bottom: 80px;
+}
+
+/* Header */
+header {
+  background: var(--light-green);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  border-bottom: 3px solid var(--main-green);
+  border-radius: 10px;
+}
+header h1 { font-size: 22px; }
+.cta-btn {
+  background: var(--accent-yellow);
+  border: none;
+  border-radius: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Hero */
+.hero {
+  background: white;
+  margin: 24px auto;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  max-width: 960px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+.hero h2 { color: var(--main-green); margin-bottom: 10px; }
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 16px 0;
+}
+.controls input, .controls select {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+/* Item Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  max-width: 960px;
+  margin: auto;
+}
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  overflow: hidden;
+  transition: transform .15s;
+}
+.card:hover { transform: translateY(-4px); }
+.card img { width: 100%; height: 160px; object-fit: cover; }
+.card-content { padding: 12px; }
+.card-content h3 { color: var(--main-green); margin-bottom: 4px; }
+.exchange-btn {
+  background: var(--main-green);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  right: -340px;
+  top: 0;
+  width: 320px;
+  height: 100%;
+  background: white;
+  box-shadow: -4px 0 12px rgba(0,0,0,0.1);
+  padding: 16px;
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+  transition: right 0.35s ease;
+  z-index: 20;
+}
+.sidebar.open { right: 0; }
+.sidebar-toggle {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  background: var(--main-green);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+  font-size: 20px;
+  z-index: 30;
+}
+
+/* Modal */
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.modal {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 460px;
+  width: 100%;
+}
+.modal.show { display: flex; }
+
+/* Footer */
+footer {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 13px;
+  color: #777;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>TrashTrade 🌿</h1>
+  <div>
+    <button class="cta-btn" id="registerBtn">물품 등록</button>
+    <button class="cta-btn" id="loginBtn">프로필</button>
+  </div>
+</header>
+
+<section class="hero">
+  <h2>학교 안에서, 지역 안에서 다시 쓰는 기쁨 🌎</h2>
+  <p>친환경 교환 플랫폼 TrashTrade와 함께 작은 순환을 시작하세요.</p>
+</section>
+
+<div class="controls">
+  <input type="text" id="searchInput" placeholder="물품 검색">
+  <select id="categoryFilter">
+    <option value="">전체 카테고리</option>
+    <option value="책">책</option>
+    <option value="의류">의류</option>
+    <option value="전자기기">전자기기</option>
+  </select>
+</div>
+
+<div id="grid" class="grid"></div>
+
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+<div class="sidebar" id="sidebar">
+  <h3>내 프로필</h3>
+  <p id="profileInfo">로그인하지 않았습니다.</p>
+  <hr style="margin:10px 0;">
+  <h4>포인트 상점</h4>
+  <ul id="shopList"></ul>
+  <hr style="margin:10px 0;">
+  <h4>랭킹</h4>
+  <ul id="rankingList"></ul>
+</div>
+
+<footer>🌱 TrashTrade — 함께 만드는 작은 순환, 큰 변화 🌍</footer>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
+let items = JSON.parse(localStorage.getItem("items")) || [];
+let users = JSON.parse(localStorage.getItem("users")) || [];
+const grid = document.getElementById("grid");
+const sidebar = document.getElementById("sidebar");
+const modalBg = document.getElementById("modalBg");
+const modal = document.getElementById("modal");
+const shopList = document.getElementById("shopList");
+const rankingList = document.getElementById("rankingList");
+const profileInfo = document.getElementById("profileInfo");
+
+function saveAll() {
+  localStorage.setItem("users", JSON.stringify(users));
+  localStorage.setItem("items", JSON.stringify(items));
+  localStorage.setItem("currentUser", JSON.stringify(currentUser));
+}
+
+/* Sidebar toggle */
+document.getElementById("sidebarToggle").onclick = () => {
+  sidebar.classList.toggle("open");
+};
+
+/* Login */
+document.getElementById("loginBtn").onclick = () => {
+  modalBg.style.display = "flex";
+  modal.innerHTML = `
+    <h3>로그인</h3>
+    <input id="name" placeholder="이름" style="width:100%;margin:6px 0;">
+    <input id="school" placeholder="학교" style="width:100%;margin:6px 0;">
+    <button id="loginConfirm" class="cta-btn" style="margin-top:10px;">확인</button>
+  `;
+  document.getElementById("loginConfirm").onclick = () => {
+    const name = document.getElementById("name").value.trim();
+    const school = document.getElementById("school").value.trim();
+    if (!name || !school) return alert("모두 입력해주세요.");
+    let user = users.find(u => u.name === name && u.school === school);
+    if (!user) {
+      user = { id: Date.now(), name, school, points: 0 };
+      users.push(user);
+    }
+    currentUser = user;
+    saveAll();
+    modalBg.style.display = "none";
+    render();
+  };
+};
+
+/* Register item */
+document.getElementById("registerBtn").onclick = () => {
+  if (!currentUser) return alert("로그인 후 이용해주세요!");
+  modalBg.style.display = "flex";
+  modal.innerHTML = `
+    <h3>물품 등록</h3>
+    <input id="title" placeholder="물품명" style="width:100%;margin:6px 0;">
+    <input id="category" placeholder="카테고리 (책/의류 등)" style="width:100%;margin:6px 0;">
+    <textarea id="desc" placeholder="설명" style="width:100%;margin:6px 0;"></textarea>
+    <button id="addItem" class="cta-btn" style="margin-top:10px;">등록</button>
+  `;
+  document.getElementById("addItem").onclick = () => {
+    const title = document.getElementById("title").value;
+    const category = document.getElementById("category").value;
+    const desc = document.getElementById("desc").value;
+    items.push({ id: Date.now(), title, category, desc, owner: currentUser.name, school: currentUser.school, status: "available" });
+    saveAll();
+    modalBg.style.display = "none";
+    render();
+  };
+};
+
+/* Close modal */
+modalBg.onclick = (e) => { if (e.target === modalBg) modalBg.style.display = "none"; };
+
+/* Exchange */
+function requestExchange(itemId) {
+  const item = items.find(i => i.id === itemId);
+  if (item.owner === currentUser.name) return alert("본인 물품입니다.");
+  if (confirm(`${item.owner}에게 교환을 요청할까요?`)) {
+    item.status = "traded";
+    currentUser.points += 10;
+    const owner = users.find(u => u.name === item.owner);
+    if (owner) owner.points += 10;
+    saveAll();
+    alert("거래 완료! 서로에게 10포인트 지급되었습니다 🌱");
+    render();
+  }
+}
+
+/* Render */
+function render() {
+  grid.innerHTML = items.map(i => `
+    <div class="card">
+      <img src="https://picsum.photos/seed/${i.id}/300/160" alt="">
+      <div class="card-content">
+        <h3>${i.title}</h3>
+        <p>${i.desc}</p>
+        <small>${i.category} · ${i.school}</small><br>
+        ${i.status === "available" ? `<button class="exchange-btn" onclick="requestExchange(${i.id})">교환 요청</button>` : `<em style="color:gray">거래 완료</em>`}
+      </div>
+    </div>
+  `).join('');
+
+  if (currentUser) {
+    profileInfo.innerHTML = `<strong>${currentUser.name}</strong> (${currentUser.school})<br>포인트: ${currentUser.points}`;
+  }
+
+  // 상점
+  const shop = [
+    { name: "씨앗 키트", cost: 30 },
+    { name: "에코 스티커", cost: 20 },
+    { name: "리유즈 텀블러", cost: 60 }
+  ];
+  shopList.innerHTML = shop.map(s => `
+    <li>${s.name} — ${s.cost}P <button onclick="buyItem('${s.name}',${s.cost})">구매</button></li>
+  `).join('');
+
+  // 랭킹
+  const ranked = [...users].sort((a,b)=>b.points-a.points).slice(0,5);
+  rankingList.innerHTML = ranked.map(u=>`<li>${u.name} (${u.points}P)</li>`).join('');
+}
+
+/* Buy item */
+function buyItem(name, cost) {
+  if (!currentUser) return alert("로그인 후 이용해주세요!");
+  if (currentUser.points < cost) return alert("포인트가 부족합니다.");
+  if (!confirm(`${name}을(를) ${cost}P로 구매하시겠어요?`)) return;
+  currentUser.points -= cost;
+  saveAll();
+  alert("구매 완료! 🎉");
+  render();
+}
+
+/* 초기 렌더링 */
+render();
+</script>
+</body>
+</html>
